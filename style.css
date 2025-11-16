@@ -77,7 +77,7 @@ body.edit-car-page {
     height: 100%;
 }
 
-.logo img {
+.logo-image {
     width: 60px;
     height: 60px;
     object-fit: contain;
@@ -233,6 +233,122 @@ body.edit-car-page {
     background-clip: text;
 }
 
+/* Cars Grid Layout */
+.cars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.car-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.car-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.car-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.car-model {
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.car-type {
+    background: var(--primary-blue);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.car-details {
+    margin: 1rem 0;
+}
+
+.car-detail {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.detail-label {
+    color: var(--text-secondary);
+    font-weight: bold;
+}
+
+.detail-value {
+    color: var(--text-primary);
+}
+
+.car-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent-orange);
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.car-price small {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.car-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 1rem 0;
+    line-height: 1.4;
+}
+
+.car-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.status-available {
+    color: var(--accent-green);
+    font-weight: bold;
+}
+
+.status-rented {
+    color: var(--accent-orange);
+    font-weight: bold;
+}
+
+.status-maintenance {
+    color: var(--accent-red);
+    font-weight: bold;
+}
+
+.no-cars-message {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+    grid-column: 1 / -1;
+}
+
+.no-cars-message h3 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
 /* Table Styles */
 .cars-table {
     background: var(--card-bg);
@@ -331,21 +447,22 @@ tr:hover {
     color: var(--text-secondary);
 }
 
-/* Select dropdown fixes for dark theme: ensure options and select use dark background and readable text */
+/* Select dropdown fixes for dark theme */
 .form-group select {
     background: var(--card-bg);
     color: var(--text-primary);
     -webkit-appearance: none;
     appearance: none;
 }
+
 .form-group select option {
     background: var(--card-bg);
     color: var(--text-primary);
 }
+
 .form-group select:focus {
     background: rgba(255, 255, 255, 0.06);
 }
-
 
 /* Action Buttons */
 .btn-edit {
@@ -429,14 +546,14 @@ tr:hover {
     }
     
     .logo-image {
-    width: 70px;
-    height: 70px;
-    object-fit: cover; /* or 'contain' depending on your image */
-    border-radius: 10px;
-    flex-shrink: 0;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-}
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 10px;
+        flex-shrink: 0;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
     
     .logo-text {
         font-size: 1.6rem;
@@ -475,6 +592,10 @@ tr:hover {
         text-align: center;
     }
     
+    .cars-grid {
+        grid-template-columns: 1fr;
+    }
+    
     .cars-table {
         overflow-x: auto;
     }
@@ -489,6 +610,10 @@ tr:hover {
     }
     
     .form-actions {
+        flex-direction: column;
+    }
+    
+    .car-actions {
         flex-direction: column;
     }
 }
