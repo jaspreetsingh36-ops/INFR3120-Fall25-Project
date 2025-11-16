@@ -6,23 +6,36 @@
     <title>Edit Car - AutoRent</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="edit-car-page">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="images/logo.JPG" alt="AutoRent Logo" class="logo-image">
+                <span class="logo-text">AutoRent</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="cars.html">Available Cars</a></li>
+                <li><a href="add-car.html">Add Car</a></li>
+            </ul>
+        </div>
+    </nav>
 
     <section class="featured-cars">
         <div class="container">
             <h1>Edit Car Details</h1>
-
+            
             <div class="form-container">
                 <form id="editCarForm">
-
-                    <!-- Hidden field to store ID -->
+                    <!-- Hidden field to store car ID -->
                     <input type="hidden" id="carId">
 
                     <div class="form-group">
                         <label for="model">Car Model</label>
                         <input type="text" id="model" name="model" required>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="type">Car Type</label>
                         <select id="type" name="type" required>
@@ -35,17 +48,17 @@
                             <option value="Economy">Economy</option>
                         </select>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="year">Year</label>
-                        <input type="number" id="year" name="year" min="2000" max="2025" required>
+                        <input type="number" id="year" name="year" min="2000" max="2026" required>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="dailyRate">Daily Rate ($)</label>
                         <input type="number" id="dailyRate" name="dailyRate" min="1" step="0.01" required>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="status">Status</label>
                         <select id="status" name="status" required>
@@ -54,76 +67,21 @@
                             <option value="Maintenance">Maintenance</option>
                         </select>
                     </div>
-
+                    
                     <div class="form-group">
                         <label for="description">Description</label>
-                        <textarea id="description" name="description" rows="4"></textarea>
+                        <textarea id="description" name="description" rows="4" placeholder="Enter car description..."></textarea>
                     </div>
-
-                    <button type="submit" class="btn btn-primary">Update Car</button>
-                    <a href="cars.html" class="btn btn-secondary">Cancel</a>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Update Car</button>
+                        <a href="cars.html" class="btn btn-secondary">Cancel</a>
+                    </div>
                 </form>
             </div>
         </div>
     </section>
 
-    <script>
-        // Get query parameter (?id=###)
-        function getQueryParam(name) {
-            const params = new URLSearchParams(window.location.search);
-            return params.get(name);
-        }
-
-        function loadCarForEdit() {
-            const carId = getQueryParam("id");
-            let cars = JSON.parse(localStorage.getItem("cars") || "[]");
-
-            const car = cars.find(c => String(c.id) === String(carId));
-
-            if (!car) {
-                alert("Car not found.");
-                window.location.href = "cars.html";
-                return;
-            }
-
-            // Fill the form
-            document.getElementById("carId").value = car.id;
-            document.getElementById("model").value = car.model;
-            document.getElementById("type").value = car.type;
-            document.getElementById("year").value = car.year;
-            document.getElementById("dailyRate").value = car.dailyRate;
-            document.getElementById("status").value = car.status;
-            document.getElementById("description").value = car.description || "";
-        }
-
-        // Update the car
-        document.getElementById("editCarForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            const id = document.getElementById("carId").value;
-            let cars = JSON.parse(localStorage.getItem("cars") || "[]");
-
-            const index = cars.findIndex(c => String(c.id) === String(id));
-
-            cars[index] = {
-                ...cars[index],
-                model: document.getElementById("model").value,
-                type: document.getElementById("type").value,
-                year: document.getElementById("year").value,
-                dailyRate: document.getElementById("dailyRate").value,
-                status: document.getElementById("status").value,
-                description: document.getElementById("description").value
-            };
-
-            localStorage.setItem("cars", JSON.stringify(cars));
-
-            alert("Car updated successfully!");
-            window.location.href = "cars.html";
-        });
-
-        // Load the existing car data on page load
-        loadCarForEdit();
-    </script>
-
+    <script src="script.js"></script>
 </body>
 </html>

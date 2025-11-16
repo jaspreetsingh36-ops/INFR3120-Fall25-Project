@@ -1,4 +1,25 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Car - AutoRent</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="add-car-page">
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="images/logo.JPG" alt="AutoRent Logo" class="logo-image">
+                <span class="logo-text">AutoRent</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="cars.html">Available Cars</a></li>
+                <li><a href="add-car.html" class="active">Add Car</a></li>
+            </ul>
+        </div>
+    </nav>
 
     <section class="featured-cars">
         <div class="container">
@@ -26,7 +47,7 @@
                     
                     <div class="form-group">
                         <label for="year">Year</label>
-                        <input type="number" id="year" name="year" min="2000" max="2025" required>
+                        <input type="number" id="year" name="year" min="2000" max="2026" required>
                     </div>
                     
                     <div class="form-group">
@@ -45,11 +66,13 @@
                     
                     <div class="form-group">
                         <label for="description">Description</label>
-                        <textarea id="description" name="description" rows="4"></textarea>
+                        <textarea id="description" name="description" rows="4" placeholder="Enter car description..."></textarea>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">Add Car</button>
-                    <a href="cars.html" class="btn btn-secondary">Cancel</a>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Car</button>
+                        <a href="cars.html" class="btn btn-secondary">Cancel</a>
+                    </div>
                 </form>
             </div>
         </div>
