@@ -1,151 +1,199 @@
+```{=html}
 <p align="center">
-  <img src="images/logo.jpg" alt="AutoRent Logo" width="200">
+```
+`<img src="images/logo.jpg" alt="AutoRent Logo" width="200">`{=html}
+```{=html}
 </p>
+```
+# AutoRent - Full Stack Car Rental System
 
-# AutoRent - Car Rental System
+Live Website: https://autorent-k8dr.onrender.com
 
-Live Website: https://infr3120-fall25-project-aona.onrender.com/index.html
+AutoRent a car rental management system built for the
+INFR3120 Web & Scripting Programming course. This platform allows users
+to browse, add, edit, and manage rental vehicles using a responsive
+frontend and a fully integrated Node.js/Express/MongoDB backend deployed
+on Render.
 
-This repository contains **Part 1 (First Release)** of the INFR3120 Web & Scripting Programming course project. This phase focuses on establishing the project idea, defining team roles, and outlining the initial plan for the upcoming web application.
+------------------------------------------------------------------------
 
-## Description
+## Features
 
-**AutoRent** is a web application that allows users to browse, view, and manage car rental listings. The goal of this project is to create a simple and functional rental platform where users can:
+### Frontend
 
-- View available cars in an interactive fleet
-- Check car details (model, type, year, daily rate, status, description)
-- Add new cars to the rental fleet
-- Edit existing car information
-- Manage car availability status
+-   Homepage with featured cars grid
+-   Available Cars table with Edit/Delete actions
+-   Add Car form with validation
+-   Edit Car page using URL parameter (?id=)
+-   Fully responsive layout (CSS Grid)
+-   Fetch API communication with backend
 
-Future releases will expand the system to include MongoDB Cloud integration, Express.js backend routes, user authentication, booking functionality, and cloud deployment.
+### Backend
 
-## Features (Current Release)
+-   Node.js + Express server
+-   MongoDB Atlas database with Mongoose models
+-   CRUD REST API for cars:
+    -   GET /api/cars
+    -   GET /api/cars/available
+    -   GET /api/cars/:id
+    -   POST /api/cars
+    -   PUT /api/cars/:id
+    -   DELETE /api/cars/:id
+-   CORS enabled
+-   Deployed on Render Web Service
 
-- **Homepage** - Landing page with hero section and featured cars display
-- **Available Cars** - Table view of all cars in the fleet
-- **Add Car** - Form to add new vehicles to the rental inventory
-- **Edit Car** - Form to update existing car information
-- **Responsive Design** - Mobile-friendly interface using CSS Grid and Flexbox
+------------------------------------------------------------------------
 
 ## Technologies Used
 
-- HTML5
-- CSS3
-- JavaScript (ES6+)
-- Local Storage (for data persistence)
+### Frontend
 
-## Getting Started
+-   HTML5\
+-   CSS3\
+-   JavaScript (ES6+)\
+-   Fetch API
 
-### Prerequisites
+### Backend
 
-- Modern web browser (Chrome, Firefox, Safari, Edge)
-- Text editor or IDE (VS Code recommended)
-- Git
+-   Node.js\
+-   Express.js\
+-   MongoDB Atlas\
+-   Mongoose ORM\
+-   Render Cloud Deployment
 
-### Installation
+------------------------------------------------------------------------
 
-1. Clone the repository:
-```bash
-git clone https://github.com/shivangamin-art/INFR3120-Fall25-Project.git
+## Project Structure
+
+    /
+    ├── index.html
+    ├── cars.html
+    ├── add-car.html
+    ├── edit-car.html
+    ├── script.js
+    ├── style.css
+    ├── server.js
+    ├── package.json
+    ├── images/
+    └── README.md
+
+------------------------------------------------------------------------
+
+## Getting Started (Local Development)
+
+### 1. Clone the repository
+
+``` bash
+git clone https://github.com/<your-username>/<your-repo>.git
 ```
 
-2. Navigate to the project directory:
-```bash
-cd INFR3120-Fall25-Project-main
+### 2. Install dependencies
+
+``` bash
+npm install
 ```
 
-3. Open `index.html` in your web browser or use a local server:
-```bash
-# Using Python 3
-python -m http.server 8000
+### 3. Create a .env file
 
-# Using Node.js (with http-server package)
-npx http-server
+    MONGODB_URI=your-mongodb-connection-string
+
+### 4. Start the backend server
+
+``` bash
+npm start
 ```
 
-### Project Structure
+### 5. Open frontend
 
-```
-INFR3120-Fall25-Project-main/
-├── index.html          # Homepage
-├── cars.html           # Available cars listing
-├── add-car.html        # Add new car form
-├── edit-car.html       # Edit car form
-├── style.css           # Stylesheet
-├── script.js           # JavaScript functionality
-├── images/             # Logo and image assets
-└── README.md           # This file
-```
+Visit:
 
-## File Descriptions
+    http://localhost:5000/index.html
 
-| File | Purpose |
-|------|---------|
-| `index.html` | Home page with hero section and featured cars grid |
-| `cars.html` | Table view of all rental cars with edit/delete actions |
-| `add-car.html` | Form to add new vehicles to inventory |
-| `edit-car.html` | Form to modify existing car details |
-| `style.css` | All styling for responsive layout and components |
-| `script.js` | Form handling, data management, and DOM interactions |
+------------------------------------------------------------------------
+
+## Backend API Endpoints
+
+  Method   Endpoint              Description
+  -------- --------------------- --------------------
+  GET      /api/health           API status
+  GET      /api/cars             Get all cars
+  GET      /api/cars/available   Get available cars
+  GET      /api/cars/:id         Get car by ID
+  POST     /api/cars             Create a new car
+  PUT      /api/cars/:id         Update car
+  DELETE   /api/cars/:id         Delete car
+
+------------------------------------------------------------------------
 
 ## Usage
 
-### Adding a Car
-1. Click "Add Car" in the navigation menu
-2. Fill in the car details (model, type, year, daily rate, status, description)
-3. Click "Add Car" to save to local storage
+### Add a Car
 
-### Viewing Cars
-1. Click "Available Cars" to see all vehicles in a table format
-2. View car details including type, year, price, and status
+1.  Navigate to **Add Car**
+2.  Fill out the form
+3.  Submit -> Saves to MongoDB
 
-### Editing a Car
-1. Click the "Edit" button next to any car in the table
-2. Modify the car information
-3. Click "Update Car" to save changes
+### Edit a Car
 
-### Deleting a Car
-1. Click the "Delete" button next to any car in the table
-2. The car will be removed from the inventory
+1.  Click **Edit** on any car
+2.  Change fields
+3.  Submit -> Updates in database
+
+### Delete a Car
+
+1.  Click **Delete**
+2.  Confirm
+3.  Car is removed from MongoDB
+
+### View Cars
+
+-   Homepage -> only available cars\
+-   Cars page -> full inventory
+
+------------------------------------------------------------------------
 
 ## Current Limitations
 
-- Data is stored in browser's local storage (not persistent across devices)
-- No user authentication or authorization
-- No booking functionality
-- No payment processing
-- Single-user environment
+-   No authentication
+-   No booking system
+-   No payment processing
+-   No image uploads
+-   Single-role system (no admin/user roles)
 
-## Future Enhancements (Part 2 & 3)
+------------------------------------------------------------------------
 
-- MongoDB Cloud database integration
-- Express.js backend API
-- User authentication and profiles
-- Booking and reservation system
-- Payment gateway integration
-- User reviews and ratings
-- Search and filter functionality
-- Email notifications
+##  Future Enhancements
+
+-   User accounts + authentication
+-   Booking & reservation system
+-   Price calculator
+-   Car image upload feature
+-   Search & filter
+-   Email notifications
+-   Dashboard with analytics
+
+------------------------------------------------------------------------
 
 ## Authors
 
-- **Jaspreet Singh**
-- **Shivang Amin**
-- **Thmisha Rasanathan**
+-   Jaspreet Singh\
+-   Shivang Amin\
+-   Thmisha Rasanathan
 
+------------------------------------------------------------------------
 
 ## Acknowledgments
 
-- INFR3120 Course Instructor and Materials
-- [W3Schools](https://www.w3schools.com/)
-- [MDN Web Docs](https://developer.mozilla.org/)
-- GitHub Community
+-   INFR3120 Course Materials\
+-   MongoDB Atlas\
+-   Render Cloud Hosting\
+-   MDN Web Docs\
+-   W3Schools
+-   https://www.youtube.com/watch?v=vkCgvEVTIgw&t
+
+------------------------------------------------------------------------
 
 ## License
 
-This project is created for academic use under **INFR3120 - Web & Scripting Programming** course at the University of Guelph.
-
----
-
-**Last Updated:** November 16, 2025
+Created for academic purposes under\
+**INFR3120 - Web & Scripting Programming (OntarioTech University)**.
