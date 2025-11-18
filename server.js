@@ -9,10 +9,7 @@ const PORT = process.env.PORT || 10000;
 app.use(cors());
 app.use(express.json());
 
-// Serve ALL static files (CSS, JS, images)
-app.use(express.static(__dirname));
-
-// MongoDB connection and routes...
+// MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, { 
   useNewUrlParser: true, 
   useUnifiedTopology: true 
@@ -29,7 +26,7 @@ const Car = mongoose.model('Car', new mongoose.Schema({
   description: { type: String, default: '' }
 }, { timestamps: true }));
 
-// API Routes
+// API Routes - MUST come before static files
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'AutoRent API running', timestamp: new Date().toISOString() });
 });
@@ -43,9 +40,19 @@ app.get('/api/cars', async (req, res) => {
   }
 });
 
-// Serve frontend for all other routes
-app.get('*', (req, res) => {
+// Serve static files (CSS, JS) - but NOT HTML files
+app.use(express.static(__dirname, {
+  // Don't serve HTML files as static files
+  index: false
+}));
+
+// Serve HTML files explicitly
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/cars.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html')); 
 });
 
 app.listen(PORT, () => {
