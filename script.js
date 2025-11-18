@@ -1,5 +1,5 @@
 // Car Rental System with MongoDB
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = '/api';
 
 // API Service
 const carService = {
