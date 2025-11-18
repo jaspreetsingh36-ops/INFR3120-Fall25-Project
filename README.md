@@ -1,10 +1,7 @@
-```{=html}
 <p align="center">
-```
-`<img src="images/logo.jpg" alt="AutoRent Logo" width="200">`{=html}
-```{=html}
+  <img src="images/logo.jpg" alt="AutoRent Logo" width="200">
 </p>
-```
+
 # AutoRent - Full Stack Car Rental System
 
 Live Website: https://autorent-k8dr.onrender.com
@@ -197,3 +194,4 @@ Visit:
 
 Created for academic purposes under\
 **INFR3120 - Web & Scripting Programming (OntarioTech University)**.
+
