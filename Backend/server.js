@@ -19,8 +19,7 @@ app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // ===== MongoDB Connection =====
 
-// Put your own URI or use .env in real projects
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://autorent-user:Autorent2025@cluster0.avlirvg.mongodb.net/autorent?retryWrites=true&w=majority';
+
 
 console.log('🚗 Starting AutoRent Server...');
 console.log('🔗 Connecting to MongoDB...');
