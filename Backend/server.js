@@ -19,7 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 // ⭐ FIXED: Serve Frontend from correct path
-app.use(express.static(path.join(__dirname, 'Frontend')));
+app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // ===== MongoDB Connection =====
 console.log('🚗 Starting AutoRent Server...');
@@ -329,7 +329,7 @@ app.delete('/api/cars/:id', authMiddleware, async (req, res) => {
 
 // ===== Catch-all: send Frontend/index.html for any other route =====
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Frontend', 'index.html'));
+  res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
 });
 
 // ===== Start Server =====
