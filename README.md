@@ -75,7 +75,7 @@ on Render.
 ------------------------------------------------------------------------
 
 ## Project Structure
-`INFR3120-Fall25-Project-main/
+INFR3120-Fall25-Project-main/
 ├── Backend/
 │   └── server.js          # Main server file
 ├── Frontend/
@@ -92,7 +92,7 @@ on Render.
 │       └── logo.jpg             # Application logo
 ├── package.json                 # Project dependencies
 └── README.md                    # Project documentation
-`
+
 ------------------------------------------------------------------------
 
 ## Getting Started (Local Development)
@@ -230,6 +230,7 @@ This project was developed for academic purposes as part of the INFR3120 - Web &
 *INFR3120 - Web & Scripting Programming • Ontario Tech University • Fall 2025*
 
 </div>
+
 
 
 
