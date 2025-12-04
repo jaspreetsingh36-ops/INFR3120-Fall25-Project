@@ -1,4 +1,5 @@
 // Frontend/script.js - Enhanced version with add/edit support and better auth handling
+const API_BASE = 'https://autorent-k8dr.onrender.com';
 console.log('🚗 AutoRent script loaded');
 
 class CarService {
