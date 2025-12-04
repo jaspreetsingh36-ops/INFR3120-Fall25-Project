@@ -1,25 +1,16 @@
-// Frontend/script.js - Enhanced version with add/edit support and better auth handling
+// Frontend/script.js - COMPLETE FIXED VERSION
 const API_BASE = 'https://autorent-k8dr.onrender.com';
-console.log('🚗 AutoRent script loaded');
 
 class CarService {
     static async getAllCars() {
         try {
-            console.log('📡 Fetching all cars from /api/cars');
-            const response = await fetch('/api/cars');
+            console.log('📡 Fetching all cars from API');
+            const response = await fetch(`${API_BASE}/api/cars`);
             console.log('📡 Response status:', response.status);
-            console.log('📡 Response content type:', response.headers.get('content-type'));
             
-            const responseText = await response.text();
-            console.log('📡 Response text (first 200 chars):', responseText.substring(0, 200));
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
-            // Check if response is HTML (error page)
-            if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
-                throw new Error('Server returned HTML instead of JSON. API route may not exist.');
-            }
-            
-            // Try to parse as JSON
-            const cars = JSON.parse(responseText);
+            const cars = await response.json();
             console.log('📡 Cars received:', cars);
             return cars;
             
@@ -31,21 +22,13 @@ class CarService {
 
     static async getAvailableCars() {
         try {
-            console.log('📡 Fetching available cars from /api/cars/available');
-            const response = await fetch('/api/cars/available');
+            console.log('📡 Fetching available cars from API');
+            const response = await fetch(`${API_BASE}/api/cars/available`);
             console.log('📡 Response status:', response.status);
-            console.log('📡 Response content type:', response.headers.get('content-type'));
             
-            const responseText = await response.text();
-            console.log('📡 Response text (first 200 chars):', responseText.substring(0, 200));
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
-            // Check if response is HTML (error page)
-            if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
-                throw new Error('Server returned HTML instead of JSON. API route may not exist.');
-            }
-            
-            // Try to parse as JSON
-            const cars = JSON.parse(responseText);
+            const cars = await response.json();
             console.log('📡 Available cars received:', cars);
             return cars;
             
@@ -62,7 +45,7 @@ class CarService {
                 throw new Error('AUTH_REQUIRED');
             }
 
-            const response = await fetch('/api/cars', {
+            const response = await fetch(`${API_BASE}/api/cars`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -89,7 +72,7 @@ class CarService {
                 throw new Error('AUTH_REQUIRED');
             }
 
-            const response = await fetch(`/api/cars/${id}`, {
+            const response = await fetch(`${API_BASE}/api/cars/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -116,7 +99,7 @@ class CarService {
                 throw new Error('AUTH_REQUIRED');
             }
 
-            const response = await fetch(`/api/cars/${id}`, {
+            const response = await fetch(`${API_BASE}/api/cars/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -209,9 +192,6 @@ async function loadHomepageCars() {
             <div class="error-message" style="text-align: center; padding: 2rem; background: rgba(220,53,69,0.1); border-radius: 12px; border: 1px solid rgba(220,53,69,0.3);">
                 <h3 style="color: var(--accent-red); margin-bottom: 1rem;">❌ API Connection Error</h3>
                 <p style="color: var(--text-secondary); margin-bottom: 1rem;">${error.message}</p>
-                <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                    The server is returning HTML instead of car data. Please check server routes.
-                </p>
                 <button onclick="loadHomepageCars()" class="btn btn-primary" style="margin-top: 1rem;">🔄 Retry</button>
             </div>
         `;
@@ -348,7 +328,7 @@ async function initEditCarForm() {
 
     // Load existing car data into the form
     try {
-        const response = await fetch(`/api/cars/${carId}`);
+        const response = await fetch(`${API_BASE}/api/cars/${carId}`);
         if (!response.ok) {
             throw new Error('Failed to load car details');
         }
@@ -402,15 +382,10 @@ async function initEditCarForm() {
 async function testServerConnection() {
     try {
         console.log('🔍 Testing server connection...');
-        const response = await fetch('/api/health');
-        const responseText = await response.text();
+        const response = await fetch(`${API_BASE}/api/health`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         
-        // Check if response is HTML
-        if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
-            throw new Error('Server returned HTML instead of JSON');
-        }
-        
-        const data = JSON.parse(responseText);
+        const data = await response.json();
         console.log('✅ Server connection test:', data);
         return data;
     } catch (error) {
@@ -422,7 +397,6 @@ async function testServerConnection() {
 // Initialize based on current page
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📍 Current page:', window.location.pathname);
-    console.log('🌐 Current origin:', window.location.origin);
     
     // Test server connection on load
     testServerConnection();
