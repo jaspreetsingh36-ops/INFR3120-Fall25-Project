@@ -1,10 +1,13 @@
 // Frontend/services/authService.js
 
 app.factory('AuthService', function($http, $q) {
+  // Backend API base URL
   var API_BASE = (function() {
     if (window.location.hostname === 'localhost') {
-      return ''; // same origin: http://localhost:3000
+      // Local dev (backend + frontend served from same Node server)
+      return '';
     }
+    // Deployed frontend -> deployed backend
     return 'https://backend-gamma-eight-27.vercel.app';
   })();
 
@@ -35,6 +38,7 @@ app.factory('AuthService', function($http, $q) {
   }
 
   return {
+    // Email/password register
     register: function(payload) {
       return $http.post(API_BASE + '/api/auth/register', payload)
         .then(function(res) {
@@ -46,6 +50,7 @@ app.factory('AuthService', function($http, $q) {
         });
     },
 
+    // Email/password login
     login: function(credentials) {
       return $http.post(API_BASE + '/api/auth/login', credentials)
         .then(function(res) {
@@ -69,7 +74,7 @@ app.factory('AuthService', function($http, $q) {
         });
     },
 
-    // For GitHub callback redirect – token/email come from URL
+    // GitHub login: token & email are passed via URL by backend
     acceptExternalLogin: function(token, email) {
       if (token && email) {
         saveAuth(token, { email: email });

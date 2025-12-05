@@ -3,7 +3,7 @@
 app.factory('CarService', function($http, AuthService) {
   var API_BASE = (function() {
     if (window.location.hostname === 'localhost') {
-      return ''; // same origin locally
+      return ''; // same origin in local dev
     }
     return 'https://backend-gamma-eight-27.vercel.app';
   })();

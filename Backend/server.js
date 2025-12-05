@@ -31,7 +31,7 @@ if (!JWT_SECRET) {
   console.error('❌ JWT_SECRET is not set in environment variables');
   process.exit(1);
 }
-
+const { GOOGLE_CLIENT_ID } = process.env;
 const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // ===== Middleware =====

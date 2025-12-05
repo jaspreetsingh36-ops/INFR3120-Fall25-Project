@@ -1,10 +1,16 @@
 // Frontend/controllers/loginController.js
 
-app.controller('LoginController', function($scope, $location, AuthService, $window, $timeout) {
+app.controller('LoginController', function(
+  $scope,
+  $location,
+  AuthService,
+  $window,
+  $timeout
+) {
   $scope.formData = {};
   $scope.error = '';
 
-  // Normal email/password login
+  // ---------- Email/Password Login ----------
   $scope.login = function() {
     $scope.error = '';
 
@@ -20,7 +26,7 @@ app.controller('LoginController', function($scope, $location, AuthService, $wind
       });
   };
 
-  // Handle GitHub callback token in URL
+  // ---------- GitHub callback handling ----------
   function handleGithubCallback() {
     var search = $location.search();
     var githubToken = search.githubToken;
@@ -37,16 +43,21 @@ app.controller('LoginController', function($scope, $location, AuthService, $wind
     }
   }
 
-  // Initialize Google Sign-In button
+  // ---------- Google Sign-In ----------
   function initGoogle() {
-    if (!$window.google || !$window.google.accounts || !$window.google.accounts.id) {
-      // Script might not be loaded yet – try again shortly
+    if (
+      !$window.google ||
+      !$window.google.accounts ||
+      !$window.google.accounts.id
+    ) {
+      // Script might not be loaded yet – retry shortly
       $timeout(initGoogle, 500);
       return;
     }
 
     $window.google.accounts.id.initialize({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID', // TODO: put your real client id here
+      // ⬇️ IMPORTANT: put your real Google client ID here
+      client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
       callback: handleGoogleCredential
     });
 
@@ -71,6 +82,7 @@ app.controller('LoginController', function($scope, $location, AuthService, $wind
       });
   }
 
+  // Initialize flows
   handleGithubCallback();
   initGoogle();
 });
