@@ -1,25 +1,47 @@
 // Frontend/services/carService.js
 
-app.factory('CarService', function($http) {
-    // For local dev; change to your Render URL when deployed
-    var baseUrl = 'http://localhost:3000';
-  
-    return {
-      getAll: function() {
-        return $http.get(baseUrl + '/api/cars');
-      },
-      getOne: function(id) {
-        return $http.get(baseUrl + '/api/cars/' + id);
-      },
-      create: function(car) {
-        return $http.post(baseUrl + '/api/cars', car, { withCredentials: true });
-      },
-      update: function(id, car) {
-        return $http.put(baseUrl + '/api/cars/' + id, car, { withCredentials: true });
-      },
-      remove: function(id) {
-        return $http.delete(baseUrl + '/api/cars/' + id, { withCredentials: true });
-      }
-    };
-  });
-  
+app.factory('CarService', function($http, AuthService) {
+  // Backend API base URL
+  var API_BASE = (function() {
+    if (window.location.hostname === 'localhost') {
+      // Local dev: backend serves frontend on same origin
+      // so '/api/cars' hits http://localhost:3000/api/cars
+      return '';
+    }
+    // Deployed frontend on Vercel -> call deployed backend on Vercel
+    return 'https://backend-gamma-eight-27.vercel.app';
+  })();
+
+  function authHeaders() {
+    const token = AuthService.getToken();
+    return token ? { Authorization: 'Bearer ' + token } : {};
+  }
+
+  return {
+    getAll: function() {
+      return $http.get(API_BASE + '/api/cars');
+    },
+
+    getOne: function(id) {
+      return $http.get(API_BASE + '/api/cars/' + id);
+    },
+
+    create: function(car) {
+      return $http.post(API_BASE + '/api/cars', car, {
+        headers: authHeaders()
+      });
+    },
+
+    update: function(id, car) {
+      return $http.put(API_BASE + '/api/cars/' + id, car, {
+        headers: authHeaders()
+      });
+    },
+
+    remove: function(id) {
+      return $http.delete(API_BASE + '/api/cars/' + id, {
+        headers: authHeaders()
+      });
+    }
+  };
+});
