@@ -1,0 +1,27 @@
+<table id="carsTable">
+    <thead>
+        <tr>
+            <th>Car Model</th>
+            <th>Type</th>
+            <th>Year</th>
+            <th>Daily Rate ($)</th>
+            <th>Status</th>
+            <th>Description</th>
+            <th ng-if="isAuthenticated">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="car in cars">
+            <td>{{ car.model }}</td>
+            <td>{{ car.type }}</td>
+            <td>{{ car.year }}</td>
+            <td>{{ car.dailyRate }}</td>
+            <td>{{ car.status }}</td>
+            <td>{{ car.description }}</td>
+            <td ng-if="isAuthenticated">
+                <a class="btn btn-sm btn-primary" href="#!/cars/{{car._id}}/edit">Edit</a>
+                <button class="btn btn-sm btn-danger" ng-click="deleteCar(car._id)">Delete</button>
+            </td>
+        </tr>
+    </tbody>
+</table>

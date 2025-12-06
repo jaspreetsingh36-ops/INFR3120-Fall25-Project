@@ -1,0 +1,22 @@
+<!-- Frontend/views/home.html -->
+
+<div class="home-content" style="text-align: center; margin-top: 6rem;">
+    <h1 style="font-size: 3rem; margin-bottom: 1rem;">
+        {{ title }}
+    </h1>
+
+    <p style="font-size: 1.2rem; color: var(--text-secondary);">
+        {{ subtitle }}
+    </p>
+
+    <div class="hero-buttons" style="margin-top: 2rem; display: flex; justify-content: center; gap: 1.5rem;">
+        <a href="#!/cars" class="btn btn-primary">Browse Cars</a>
+
+        <a href="#!/login" class="btn btn-secondary" ng-if="!isAuthenticated">
+            Login
+        </a>
+        <a href="#!/register" class="btn btn-secondary" ng-if="!isAuthenticated">
+            Register
+        </a>
+    </div>
+</div>

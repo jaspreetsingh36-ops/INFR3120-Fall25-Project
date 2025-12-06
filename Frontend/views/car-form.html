@@ -1,0 +1,105 @@
+<!-- Frontend/views/car-form.html -->
+
+<h1 ng-if="!isEdit">Add New Car to Fleet</h1>
+<h1 ng-if="isEdit">Edit Car Details</h1>
+
+<div class="form-container">
+    <form ng-submit="saveCar()">
+        <!-- Only used in edit mode internally (no visible ID input needed) -->
+
+        <div class="form-group">
+            <label for="model">Car Model</label>
+            <input
+                type="text"
+                id="model"
+                name="model"
+                ng-model="car.model"
+                required
+                placeholder="e.g., Toyota Camry"
+            >
+        </div>
+        
+        <div class="form-group">
+            <label for="type">Car Type</label>
+            <select
+                id="type"
+                name="type"
+                ng-model="car.type"
+                required
+            >
+                <option value="">Select Car Type</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Truck">Truck</option>
+                <option value="Sports Car">Sports Car</option>
+                <option value="Luxury">Luxury</option>
+                <option value="Economy">Economy</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="year">Year</label>
+            <input
+                type="number"
+                id="year"
+                name="year"
+                min="2000"
+                max="2026"
+                ng-model="car.year"
+                required
+                placeholder="2024"
+            >
+        </div>
+        
+        <div class="form-group">
+            <label for="dailyRate">Daily Rate ($)</label>
+            <input
+                type="number"
+                id="dailyRate"
+                name="dailyRate"
+                min="1"
+                step="0.01"
+                ng-model="car.dailyRate"
+                required
+                placeholder="45.00"
+            >
+        </div>
+        
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select
+                id="status"
+                name="status"
+                ng-model="car.status"
+                required
+            >
+                <option value="Available">Available</option>
+                <option value="Rented">Rented</option>
+                <option value="Maintenance">Maintenance</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea
+                id="description"
+                name="description"
+                rows="4"
+                ng-model="car.description"
+                placeholder="Enter car description and features..."
+            ></textarea>
+        </div>
+
+        <!-- Error message -->
+        <p class="error-message" ng-if="error" style="color: red; margin-top: 0.5rem;">
+            {{ error }}
+        </p>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {{ isEdit ? 'Update Car' : 'Add Car' }}
+            </button>
+            <a href="#!/cars" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
