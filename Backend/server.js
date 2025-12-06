@@ -1,4 +1,6 @@
-require("dotenv").config();
+// Backend/server.js
+
+require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -10,48 +12,73 @@ const jwt = require('jsonwebtoken');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 🔑 Read env vars
+const { MONGODB_URI, JWT_SECRET } = process.env;
 
+if (!MONGODB_URI) {
+  console.error('❌ MONGODB_URI is not set in environment variables');
+  process.exit(1);
+}
+
+if (!JWT_SECRET) {
+  console.error('❌ JWT_SECRET is not set in environment variables');
+  process.exit(1);
+}
 
 // ===== Middleware =====
+// You can tighten this later with specific origins if you like
 app.use(cors());
 app.use(express.json());
 
-// ⭐ FIXED PATH: Serve Frontend from correct location
+// ⭐ Serve Frontend from correct location
 app.use(express.static(path.join(__dirname, '../Frontend')));
 
 // ===== MongoDB Connection =====
 console.log('🚗 Starting AutoRent Server...');
 
-mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 10000 })
+mongoose
+  .connect(MONGODB_URI, { serverSelectionTimeoutMS: 10000 })
   .then(() => console.log('✅ MongoDB connected successfully'))
   .catch((err) => {
     console.error('❌ MongoDB connection failed:', err.message);
-    // Don't exit - let the app continue
+    // optional: process.exit(1);
   });
 
 // ===== Mongoose Models =====
-const carSchema = new mongoose.Schema({
-  model: { type: String, required: true },
-  type: { type: String, required: true },
-  year: { type: Number, required: true },
-  dailyRate: { type: Number, required: true },
-  status: { type: String, required: true, enum: ['Available', 'Rented', 'Maintenance'] },
-  description: { type: String, default: '' },
-}, { timestamps: true });
+const carSchema = new mongoose.Schema(
+  {
+    model: { type: String, required: true },
+    type: { type: String, required: true },
+    year: { type: Number, required: true },
+    dailyRate: { type: Number, required: true },
+    status: {
+      type: String,
+      required: true,
+      enum: ['Available', 'Rented', 'Maintenance'],
+    },
+    description: { type: String, default: '' },
+  },
+  { timestamps: true }
+);
 
-const userSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-}, { timestamps: true });
+const userSchema = new mongoose.Schema(
+  {
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
 const Car = mongoose.model('Car', carSchema);
 const User = mongoose.model('User', userSchema);
 
-// ===== Auth Middleware =====
+// ===== Auth Middleware (JWT) =====
 const authMiddleware = (req, res, next) => {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Authorization header missing or invalid' });
+    return res
+      .status(401)
+      .json({ message: 'Authorization header missing or invalid' });
   }
 
   const token = header.replace('Bearer ', '').trim();
@@ -81,20 +108,35 @@ app.get('/api/health', async (req, res) => {
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ message: 'Email and password required' });
+    if (!email || !password)
+      return res
+        .status(400)
+        .json({ message: 'Email and password required' });
 
     const existing = await User.findOne({ email });
-    if (existing) return res.status(400).json({ message: 'User already exists' });
+    if (existing)
+      return res.status(400).json({ message: 'User already exists' });
 
     const hashed = await bcrypt.hash(password, 10);
     const user = new User({ email, password: hashed });
     await user.save();
 
-    const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
-    return res.status(201).json({ message: 'User created successfully', token, user: { id: user._id, email: user.email } });
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return res.status(201).json({
+      message: 'User created successfully',
+      token,
+      user: { id: user._id, email: user.email },
+    });
   } catch (err) {
     console.error('❌ Error in /api/auth/register:', err);
-    return res.status(500).json({ message: 'Error creating user', error: err.message });
+    return res
+      .status(500)
+      .json({ message: 'Error creating user', error: err.message });
   }
 });
 
@@ -102,19 +144,35 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ message: 'Email and password required' });
+    if (!email || !password)
+      return res
+        .status(400)
+        .json({ message: 'Email and password required' });
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'Invalid email or password' });
+    if (!user)
+      return res.status(400).json({ message: 'Invalid email or password' });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid email or password' });
+    if (!isMatch)
+      return res.status(400).json({ message: 'Invalid email or password' });
 
-    const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
-    return res.json({ message: 'Login successful', token, user: { id: user._id, email: user.email } });
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return res.json({
+      message: 'Login successful',
+      token,
+      user: { id: user._id, email: user.email },
+    });
   } catch (err) {
     console.error('❌ Error in /api/auth/login:', err);
-    return res.status(500).json({ message: 'Error logging in', error: err.message });
+    return res
+      .status(500)
+      .json({ message: 'Error logging in', error: err.message });
   }
 });
 
@@ -132,7 +190,9 @@ app.get('/api/cars', async (req, res) => {
 // Get available cars
 app.get('/api/cars/available', async (req, res) => {
   try {
-    const cars = await Car.find({ status: 'Available' }).sort({ createdAt: -1 });
+    const cars = await Car.find({ status: 'Available' }).sort({
+      createdAt: -1,
+    });
     return res.json(cars);
   } catch (err) {
     console.error('❌ Error fetching available cars:', err);
@@ -157,7 +217,9 @@ app.post('/api/cars', authMiddleware, async (req, res) => {
   try {
     const { model, type, year, dailyRate, status, description } = req.body;
     if (!model || !type || !year || !dailyRate || !status) {
-      return res.status(400).json({ error: 'Missing required car fields' });
+      return res
+        .status(400)
+        .json({ error: 'Missing required car fields' });
     }
 
     const car = new Car({ model, type, year, dailyRate, status, description });
@@ -172,7 +234,10 @@ app.post('/api/cars', authMiddleware, async (req, res) => {
 // Update car (protected)
 app.put('/api/cars/:id', authMiddleware, async (req, res) => {
   try {
-    const updated = await Car.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const updated = await Car.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
     if (!updated) return res.status(404).json({ error: 'Car not found' });
     return res.json(updated);
   } catch (err) {
@@ -193,7 +258,7 @@ app.delete('/api/cars/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// ===== Catch-all: serve Frontend =====
+// ===== Catch-all: serve Frontend SPA =====
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
 });
@@ -202,5 +267,4 @@ app.get('*', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🎉 AutoRent server running on port ${PORT}`);
   console.log(`📍 API health: http://localhost:${PORT}/api/health`);
-  
 });
