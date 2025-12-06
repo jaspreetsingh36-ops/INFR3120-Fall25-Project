@@ -1,0 +1,244 @@
+﻿.home-container {
+  padding-bottom: 3rem;
+}
+
+.hero-section {
+  background: linear-gradient(135deg, #003366 0%, #0066cc 100%);
+  color: white;
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+}
+
+.hero-title {
+  font-size: 2.8rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  text-align: center;
+  font-size: 1.2rem;
+  opacity: 0.9;
+  margin-bottom: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-content h3 {
+  font-size: 2rem;
+  margin: 0;
+  color: white;
+}
+
+.stat-content p {
+  margin: 0.25rem 0;
+  font-weight: 500;
+}
+
+.stat-content small {
+  opacity: 0.8;
+  font-size: 0.85rem;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  color: #003366;
+  margin-bottom: 1rem;
+}
+
+.feature-card p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.database-info {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 2rem;
+  margin: 3rem 0;
+  border: 2px solid #eaeaea;
+}
+
+.database-info h2 {
+  color: #003366;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.connection-details {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.connection-details p {
+  margin: 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.connection-details strong {
+  color: #003366;
+  min-width: 150px;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #dc3545;
+  margin-right: 0.5rem;
+}
+
+.status-indicator.connected {
+  background: #28a745;
+}
+
+.refresh-btn {
+  background: #003366;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #0066cc;
+  transform: translateY(-2px);
+}
+
+.refresh-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.cta-section {
+  text-align: center;
+  padding: 3rem;
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f2ff 100%);
+  border-radius: 10px;
+  margin-top: 3rem;
+}
+
+.cta-section h2 {
+  color: #003366;
+  margin-bottom: 1rem;
+}
+
+.cta-section p {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.cta-button {
+  display: inline-block;
+  background: #003366;
+  color: white;
+  text-decoration: none;
+  padding: 1rem 2rem;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0.5rem;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.cta-button:hover {
+  background: #0066cc;
+  transform: translateY(-2px);
+}
+
+.cta-button.secondary {
+  background: #6c757d;
+}
+
+.cta-button.secondary:hover {
+  background: #5a6268;
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .features {
+    grid-template-columns: 1fr;
+  }
+  
+  .connection-details p {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .connection-details strong {
+    min-width: auto;
+  }
+}

@@ -1,0 +1,47 @@
+﻿<header class="header">
+  <nav class="navbar">
+    <div class="container">
+      <div class="logo">
+        <h1>🚗 AutoRent</h1>
+      </div>
+      <div class="nav-links">
+        <a routerLink="/" routerLinkActive="active">
+          <span class="nav-icon">🏠</span> Home
+        </a>
+        <a routerLink="/cars" routerLinkActive="active">
+          <span class="nav-icon">🚗</span> Browse Cars
+        </a>
+        <a routerLink="/login" routerLinkActive="active">
+          <span class="nav-icon">🔑</span> Login
+        </a>
+        <a routerLink="/register" routerLinkActive="active">
+          <span class="nav-icon">📝</span> Register
+        </a>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-logo">
+        <h2>🚗 AutoRent</h2>
+        <p>Car Rental System</p>
+      </div>
+      <div class="footer-info">
+        <p>INFR3120 Web & Scripting Programming - Fall 2025</p>
+        <p class="backend-url">
+          Backend: <a href="https://autorent-k8dr.onrender.com" target="_blank">
+            https://autorent-k8dr.onrender.com
+          </a>
+        </p>
+        <p class="database-info">MongoDB Database Connection</p>
+      </div>
+    </div>
+  </div>
+</footer>

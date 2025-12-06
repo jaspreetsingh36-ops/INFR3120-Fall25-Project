@@ -1,0 +1,469 @@
+﻿import { Injectable } from '@angular/core';
+import { Observable, of, BehaviorSubject, from } from 'rxjs';
+import { catchError, map, tap, switchMap } from 'rxjs/operators';
+
+export interface Car {
+  _id?: string;
+  model: string;
+  type: string;
+  year: number;
+  price: number;
+  status: 'available' | 'rented' | 'maintenance';
+  description: string;
+}
+
+export interface User {
+  _id?: string;
+  name: string;
+  email: string;
+  role: 'user' | 'admin';
+  rentals: any[];
+  isLoggedIn: boolean;
+  token?: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data?: any;
+  message?: string;
+  error?: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CarService {
+  private apiUrl = 'https://infr-3120-fall25-project-e8t2.vercel.app/api';
+  
+  // Subjects for data
+  private carsSubject = new BehaviorSubject<Car[]>([]);
+  cars$ = this.carsSubject.asObservable();
+  
+  private usersSubject = new BehaviorSubject<User[]>([]);
+  users$ = this.usersSubject.asObservable();
+  
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  currentUser$ = this.currentUserSubject.asObservable();
+
+  private backendStatus = {
+    connected: false,
+    message: 'Connecting to Vercel backend...',
+    lastCheck: new Date()
+  };
+
+  constructor() {
+    this.loadUserFromLocalStorage();
+    this.loadInitialData();
+  }
+
+  // ========== INITIALIZATION ==========
+  
+    private async loadInitialData(): Promise<void> {
+    // Load both cars and users from backend
+    try {
+      await this.loadCarsFromBackend();
+      await this.loadUsersFromBackend();
+    } catch (error) {
+      console.error('Failed to load initial data:', error);
+    }
+  }
+
+  // ========== BACKEND DATA LOADING ==========
+  
+  private async loadCarsFromBackend(): Promise<void> {
+    try {
+      const cars = await this.fetchData<Car[]>('/api/cars');
+      if (cars) {
+        this.carsSubject.next(cars);
+        console.log('Cars loaded from backend:', cars.length, 'cars');
+      }
+    } catch (error) {
+      console.error('Failed to load cars from backend:', error);
+    }
+  }
+
+  private async loadUsersFromBackend(): Promise<void> {
+    try {
+      const users = await this.fetchData<User[]>('/api/users');
+      if (users) {
+        this.usersSubject.next(users);
+        console.log('Users loaded from backend:', users.length, 'users');
+      }
+    } catch (error) {
+      console.error('Failed to load users from backend:', error);
+    }
+  }
+
+  // ========== FETCH HELPER ==========
+  
+  private async fetchData<T>(endpoint: string): Promise<T | null> {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      
+      const response = await fetch(`${this.apiUrl}${endpoint}`, {
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json() as T;
+    } catch (error) {
+      console.error(`Failed to fetch ${endpoint}:`, error);
+      return null;
+    }
+  }
+
+  private async postData<T>(endpoint: string, data: any): Promise<T | null> {
+    try {
+      const response = await fetch(`${this.apiUrl}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': this.getAuthHeader()
+        },
+        body: JSON.stringify(data)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json() as T;
+    } catch (error) {
+      console.error(`Failed to POST ${endpoint}:`, error);
+      return null;
+    }
+  }
+
+  private async putData<T>(endpoint: string, data: any): Promise<T | null> {
+    try {
+      const response = await fetch(`${this.apiUrl}${endpoint}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': this.getAuthHeader()
+        },
+        body: JSON.stringify(data)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json() as T;
+    } catch (error) {
+      console.error(`Failed to PUT ${endpoint}:`, error);
+      return null;
+    }
+  }
+
+  private async deleteData(endpoint: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.apiUrl}${endpoint}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': this.getAuthHeader()
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const result: ApiResponse = await response.json();
+      return result.success || false;
+    } catch (error) {
+      console.error(`Failed to DELETE ${endpoint}:`, error);
+      return false;
+    }
+  }
+
+  // ========== PUBLIC API METHODS ==========
+  
+  getAllCars(): Observable<Car[]> {
+    return from(this.fetchData<Car[]>('/cars')).pipe(
+      map(cars => {
+        if (cars) {
+          this.backendStatus.connected = true;
+          this.backendStatus.message = 'Connected to Vercel backend';
+          this.carsSubject.next(cars);
+          console.log('✅ Loaded', cars.length, 'cars from Vercel backend');
+          return cars;
+        } else {
+          this.backendStatus.connected = false;
+          this.backendStatus.message = 'Failed to load cars from backend';
+          return this.carsSubject.value; // Return cached data
+        }
+      }),
+      catchError(error => {
+        console.error('Error in getAllCars:', error);
+        this.backendStatus.connected = false;
+        this.backendStatus.message = 'Backend connection failed';
+        return of(this.carsSubject.value);
+      })
+    );
+  }
+
+  getAllUsers(): Observable<User[]> {
+    return from(this.fetchData<User[]>('/users')).pipe(
+      map(users => {
+        if (users) {
+          this.usersSubject.next(users);
+          console.log('✅ Loaded', users.length, 'users from Vercel backend');
+          return users;
+        } else {
+          return this.usersSubject.value; // Return cached data
+        }
+      }),
+      catchError(error => {
+        console.error('Error in getAllUsers:', error);
+        return of(this.usersSubject.value);
+      })
+    );
+  }
+
+  refreshAllData(): Observable<{cars: Car[], users: User[]}> {
+    return new Observable(observer => {
+      Promise.all([
+        this.fetchData<Car[]>('/cars'),
+        this.fetchData<User[]>('/users')
+      ]).then(([cars, users]) => {
+        if (cars) {
+          this.carsSubject.next(cars);
+          this.backendStatus.connected = true;
+          this.backendStatus.message = `Connected to Vercel backend (${cars.length} cars, ${users?.length || 0} users)`;
+        }
+        if (users) {
+          this.usersSubject.next(users);
+        }
+        observer.next({
+          cars: cars || this.carsSubject.value,
+          users: users || this.usersSubject.value
+        });
+        observer.complete();
+      }).catch(error => {
+        console.error('Error refreshing data:', error);
+        observer.next({
+          cars: this.carsSubject.value,
+          users: this.usersSubject.value
+        });
+        observer.complete();
+      });
+    });
+  }
+
+  // ========== CAR CRUD OPERATIONS ==========
+  
+  createCar(car: Car): Observable<Car> {
+    return from(this.postData<Car>('/cars', car)).pipe(
+      map(newCar => {
+        if (newCar) {
+          console.log('✅ Car created on Vercel backend:', newCar);
+          // Refresh car list
+          this.getAllCars().subscribe();
+          return newCar;
+        }
+        throw new Error('Failed to create car');
+      }),
+      catchError(error => {
+        console.error('Create car failed:', error);
+        throw error;
+      })
+    );
+  }
+
+  updateCar(id: string, car: Car): Observable<Car> {
+    return from(this.putData<Car>(`/cars/${id}`, car)).pipe(
+      map(updatedCar => {
+        if (updatedCar) {
+          console.log('✅ Car updated on Vercel backend:', updatedCar);
+          // Refresh car list
+          this.getAllCars().subscribe();
+          return updatedCar;
+        }
+        throw new Error('Failed to update car');
+      }),
+      catchError(error => {
+        console.error('Update car failed:', error);
+        throw error;
+      })
+    );
+  }
+
+  deleteCar(id: string): Observable<boolean> {
+    return from(this.deleteData(`/cars/${id}`)).pipe(
+      map(success => {
+        if (success) {
+          console.log('✅ Car deleted from Vercel backend:', id);
+          // Refresh car list
+          this.getAllCars().subscribe();
+        }
+        return success;
+      }),
+      catchError(error => {
+        console.error('Delete car failed:', error);
+        throw error;
+      })
+    );
+  }
+
+  // ========== AUTHENTICATION ==========
+  
+  login(email: string, password: string): Observable<User> {
+    return from(this.postData<ApiResponse>('/auth/login', { email, password })).pipe(
+      map(response => {
+        if (response?.success && response.data) {
+          const user = response.data as User;
+          user.isLoggedIn = true;
+          return user;
+        }
+        throw new Error(response?.error || 'Login failed');
+      }),
+      tap(user => {
+        this.currentUserSubject.next(user);
+        this.saveUserToLocalStorage(user);
+        console.log('✅ Logged in to Vercel backend:', user.email);
+        // Refresh users list
+        this.getAllUsers().subscribe();
+      }),
+      catchError(error => {
+        console.warn('Login failed, using demo mode:', error.message);
+        // Create demo user
+        const demoUser: User = {
+          _id: 'demo-' + Date.now(),
+          name: 'Demo Admin',
+          email: email,
+          role: 'admin',
+          rentals: [],
+          isLoggedIn: true,
+          token: 'demo-token'
+        };
+        this.currentUserSubject.next(demoUser);
+        this.saveUserToLocalStorage(demoUser);
+        return of(demoUser);
+      })
+    );
+  }
+
+  logout(): void {
+    this.currentUserSubject.next(null);
+    localStorage.removeItem('currentUser');
+    console.log('✅ Logged out');
+  }
+
+  // ========== SEARCH ==========
+  
+  searchCars(query: string): Car[] {
+    const cars = this.carsSubject.value;
+    if (!query.trim()) return cars;
+    
+    const searchTerm = query.toLowerCase();
+    return cars.filter(car =>
+      car.model.toLowerCase().includes(searchTerm) ||
+      car.type.toLowerCase().includes(searchTerm) ||
+      car.year.toString().includes(searchTerm) ||
+      car.status.toLowerCase().includes(searchTerm) ||
+      car.description.toLowerCase().includes(searchTerm)
+    );
+  }
+
+  // ========== BACKEND STATUS ==========
+  
+  async testBackendConnection(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.apiUrl}/cars`, { method: 'GET' });
+      this.backendStatus.connected = response.ok;
+      this.backendStatus.message = response.ok ? 'Connected to Vercel backend' : 'Backend returned error';
+      this.backendStatus.lastCheck = new Date();
+      return response.ok;
+    } catch (error: any) {
+      this.backendStatus.connected = false;
+      this.backendStatus.message = 'Backend unavailable: ' + (error.message || 'Connection failed');
+      this.backendStatus.lastCheck = new Date();
+      return false;
+    }
+  }
+
+  getBackendStatus() {
+    return this.backendStatus;
+  }
+
+  // ========== AUTH HELPER ==========
+  
+  private getAuthHeader(): string {
+    const user = this.currentUserSubject.value;
+    if (user?.token) {
+      return `Bearer ${user.token}`;
+    }
+    return '';
+  }
+
+  // ========== LOCAL STORAGE ==========
+  
+  private loadUserFromLocalStorage(): void {
+    try {
+      const savedUser = localStorage.getItem('currentUser');
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        this.currentUserSubject.next(user);
+      }
+    } catch (error) {
+      console.error('Error loading user from localStorage:', error);
+    }
+  }
+
+  private saveUserToLocalStorage(user: User): void {
+    try {
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    } catch (error) {
+      console.error('Error saving user to localStorage:', error);
+    }
+  }
+
+  // ========== PUBLIC HELPER METHODS ==========
+  
+  getCurrentUser(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.currentUserSubject.value?.isLoggedIn;
+  }
+
+  isAdmin(): boolean {
+    return this.currentUserSubject.value?.role === 'admin';
+  }
+
+  getCarsCount(): number {
+    return this.carsSubject.value.length;
+  }
+
+  getUsersCount(): number {
+    return this.usersSubject.value.length;
+  }
+
+  getAvailableCarsCount(): number {
+    return this.carsSubject.value.filter(car => car.status === 'available').length;
+  }
+
+  getCars(): Car[] {
+    return this.carsSubject.value;
+  }
+
+  getUsersList(): User[] {
+    return this.usersSubject.value;
+  }
+}
+
+
+
+
+

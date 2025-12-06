@@ -1,0 +1,211 @@
+﻿<div class="cars-container">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>🚗 All vehicles - {{currentUser?.isLoggedIn ? 'Manage Mode' : 'Read-Only Mode'}}</h1>
+    </div>
+    
+    <div class="user-info">
+      <span class="status-indicator" [class.logged-in]="currentUser?.isLoggedIn"></span>
+      <span class="user-status">
+        {{currentUser?.isLoggedIn ? 'Logged in as ' + currentUser?.name : 'Not logged in'}}
+      </span>
+      
+      <button *ngIf="!currentUser?.isLoggedIn" (click)="login()" class="login-btn">
+        🔑 Login
+      </button>
+      
+      <button *ngIf="currentUser?.isLoggedIn" (click)="logout()" class="logout-btn">
+        🚪 Logout
+      </button>
+      
+      <button *ngIf="currentUser?.isLoggedIn" (click)="addNewCar()" class="add-car-btn">
+        ➕ Add New Car
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-box">
+      <input
+        type="text"
+        placeholder="Search cars by model, type, year, or status..."
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="searchCars()"
+      />
+      <button (click)="searchCars()" class="search-btn">🔍 Search</button>
+      <button (click)="clearSearch()" class="clear-btn">🔄 Clear</button>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <span class="stat">
+      <strong>Showing:</strong> {{filteredCars.length}} cars
+    </span>
+    <span class="stat mode" [class.edit-mode]="currentUser?.isLoggedIn">
+      {{currentUser?.isLoggedIn ? 'Edit Mode' : 'View Mode'}}
+    </span>
+    <span class="stat">
+      <strong>Available:</strong> {{cars.filter(c => c.status === 'available').length}}
+    </span>
+  </div>
+
+  <!-- Edit Form (when in edit mode) -->
+  <div *ngIf="isEditMode" class="edit-form-container">
+    <div class="edit-form">
+      <h3>{{editingCar ? 'Edit Car' : 'Add New Car'}}</h3>
+      
+      <form (ngSubmit)="saveCar()">
+        <div class="form-group">
+          <label>Model *</label>
+          <input type="text" [(ngModel)]="editForm.model" name="model" required class="form-control" />
+        </div>
+        
+        <div class="form-group">
+          <label>Type *</label>
+          <select [(ngModel)]="editForm.type" name="type" required class="form-control">
+            <option value="Sedan">Sedan</option>
+            <option value="SUV">SUV</option>
+            <option value="Truck">Truck</option>
+            <option value="Coupe">Coupe</option>
+            <option value="Convertible">Convertible</option>
+            <option value="Van">Van</option>
+          </select>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label>Year *</label>
+            <input type="number" [(ngModel)]="editForm.year" name="year" required class="form-control" 
+                   min="2000" [max]="new Date().getFullYear() + 1" />
+          </div>
+          
+          <div class="form-group">
+            <label>Price ($) *</label>
+            <input type="number" [(ngModel)]="editForm.price" name="price" required class="form-control" 
+                   min="0" step="100" />
+          </div>
+          
+          <div class="form-group">
+            <label>Status *</label>
+            <select [(ngModel)]="editForm.status" name="status" required class="form-control">
+              <option *ngFor="let status of statusOptions" [value]="status">
+                {{status | titlecase}}
+              </option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="editForm.description" name="description" 
+                    class="form-control" rows="3"></textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="save-btn" [disabled]="loading">
+            {{loading ? 'Saving...' : (editingCar ? 'Update Car' : 'Add Car')}}
+          </button>
+          <button type="button" (click)="cancelEdit()" class="cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading cars data...</p>
+  </div>
+
+  <!-- Cars Table -->
+  <div class="cars-table-container" *ngIf="!loading">
+    <table class="cars-table" *ngIf="filteredCars.length > 0">
+      <thead>
+        <tr>
+          <th *ngFor="let column of columns" [class]="column.key">
+            {{column.label}}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let car of filteredCars" [class]="car.status.toLowerCase()">
+          <td class="model">{{car.model}}</td>
+          <td class="type">{{car.type}}</td>
+          <td class="year">{{car.year}}</td>
+          <td class="price">
+            <span class="price-value">{{formatPrice(car.price)}}</span>
+            <div *ngIf="currentUser?.isLoggedIn" class="price-edit">
+              <input type="number" #priceInput [value]="car.price" min="0" 
+                     (change)="updateCarPrice(car, priceInput.valueAsNumber)" />
+            </div>
+          </td>
+          <td class="status">
+            <span class="status-badge" [style.background-color]="getStatusColor(car.status)">
+              {{car.status | titlecase}}
+            </span>
+            <div *ngIf="currentUser?.isLoggedIn" class="status-edit">
+              <select #statusSelect [value]="car.status"
+                      (change)="updateCarStatus(car, statusSelect.value)">
+                <option *ngFor="let status of statusOptions" [value]="status">
+                  {{status | titlecase}}
+                </option>
+              </select>
+            </div>
+          </td>
+          <td class="actions">
+            <div class="action-buttons">
+              <button (click)="manageCar(car)" class="action-btn" [class.logged-in]="currentUser?.isLoggedIn">
+                {{getActionText()}}
+              </button>
+              
+              <button *ngIf="currentUser?.isLoggedIn && canEdit()" 
+                      (click)="deleteCar(car._id!)" class="delete-btn">
+                🗑️ Delete
+              </button>
+            </div>
+            
+            <div *ngIf="currentUser?.isLoggedIn" class="description-edit">
+              <textarea #descInput placeholder="Update description..."
+                        (blur)="updateCarDescription(car, descInput.value)">
+                {{car.description}}
+              </textarea>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- No Cars Message -->
+    <div *ngIf="filteredCars.length === 0" class="no-cars">
+      <p>🚫 No cars found</p>
+      <button *ngIf="searchQuery" (click)="clearSearch()" class="show-all-btn">
+        Show All Cars
+      </button>
+    </div>
+  </div>
+
+  <!-- Data Source Info -->
+  <div class="data-source-info">
+    <div class="data-stats">
+      <div class="stat">
+        <span class="stat-label">Total Cars:</span>
+        <span class="stat-value">{{cars.length}}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Total Users:</span>
+        <span class="stat-value">{{users.length}}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Data Source:</span>
+        <span class="stat-status">{{getDataSourceText()}}</span>
+      </div>
+    </div>
+    
+    <button (click)="loadDataFromDatabase()" class="refresh-btn" [disabled]="loading">
+      {{loading ? '🔄 Loading...' : '🔄 Refresh from Database'}}
+    </button>
+  </div>
+</div>

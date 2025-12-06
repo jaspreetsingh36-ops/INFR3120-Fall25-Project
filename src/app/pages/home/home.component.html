@@ -1,0 +1,83 @@
+﻿<div class="home-container">
+  <div class="hero-section">
+    <div class="container">
+      <h1 class="hero-title">🚗 AutoRent Car Rental System</h1>
+      <p class="hero-subtitle">Professional car rental management platform</p>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">🚗</div>
+          <div class="stat-content">
+            <h3>{{carCount}}</h3>
+            <p>Cars in Database</p>
+            <small>Connected to MongoDB</small>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-content">
+            <h3>{{userCount}}</h3>
+            <p>Registered Users</p>
+            <small>User database</small>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-content">
+            <h3>Live</h3>
+            <p>Real-time Data</p>
+            <small>Auto-refreshing</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🏢</div>
+        <h3>Enterprise System</h3>
+        <p>Full-stack car rental management system with real database integration</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🔐</div>
+        <h3>Secure Authentication</h3>
+        <p>User registration, login, and role-based access control</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Real Data</h3>
+        <p>Live connection to MongoDB database with actual car and user records</p>
+      </div>
+    </div>
+
+    <div class="database-info">
+      <h2>📡 Database Connection Status</h2>
+      <div class="connection-details">
+        <p><strong>Backend Server:</strong> https://autorent-k8dr.onrender.com</p>
+        <p><strong>Cars API:</strong> /api/cars</p>
+        <p><strong>Users API:</strong> /api/users</p>
+        <p><strong>Status:</strong> 
+          <span class="status-indicator" [class.connected]="!loading && carCount > 0">
+            {{loading ? 'Connecting...' : (carCount > 0 ? 'Connected' : 'No data')}}
+          </span>
+        </p>
+      </div>
+      <button (click)="loadDataFromBackend()" [disabled]="loading" class="refresh-btn">
+        {{loading ? 'Loading...' : '🔄 Refresh Data'}}
+      </button>
+    </div>
+
+    <div class="cta-section">
+      <h2>Start Managing Your Fleet</h2>
+      <p>Access the complete car management system</p>
+      <a routerLink="/cars" class="cta-button">🚗 Manage Cars Database</a>
+      <a routerLink="/login" class="cta-button secondary">🔑 Login to System</a>
+    </div>
+  </div>
+</div>

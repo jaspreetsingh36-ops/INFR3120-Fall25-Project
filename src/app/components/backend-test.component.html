@@ -1,0 +1,34 @@
+﻿<div style="padding: 2rem; background: #f8f9fa; border-radius: 8px; margin: 2rem 0;">
+  <h3 style="color: #003366;">🔧 Backend Connection Test</h3>
+  
+  <div style="margin: 1rem 0;">
+    <button (click)="testConnection()"
+            style="padding: 0.75rem 1.5rem; background: #003366; color: white; border: none; border-radius: 4px; cursor: pointer;">
+      Test Backend Connection
+    </button>
+  </div>
+
+  <div *ngIf="testing" style="color: #666;">
+    <p>Testing connection to: https://autorent-k8dr.onrender.com</p>
+    <p>MongoDB: mongodb+srv://autorent-user:*****@cluster0.avlpj.mongodb.net/autorent_db</p>
+  </div>
+
+  <div *ngIf="results.length > 0" style="margin-top: 1rem;">
+    <h4>Test Results:</h4>
+    <div *ngFor="let result of results"
+         [style.background]="result.working ? '#d4edda' : '#f8d7da'"
+         style="padding: 1rem; margin: 0.5rem 0; border-radius: 4px;">
+      <strong>{{result.url}}</strong>
+      <span style="margin-left: 1rem;">
+        {{result.working ? '✅ WORKING' : '❌ FAILED'}}
+      </span>
+      <div *ngIf="result.data" style="margin-top: 0.5rem; font-size: 0.9em;">
+        Response: {{result.data | json}}
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="error" style="color: #dc3545; margin-top: 1rem;">
+    {{error}}
+  </div>
+</div>

@@ -1,0 +1,274 @@
+﻿<!-- Main Container -->
+<div class="cars-container">
+  
+  <!-- Header Section -->
+  <header class="app-header">
+    <div class="header-content">
+      <!-- Fixed Logo - using absolute path from assets -->
+      <div class="app-logo">
+  <span class="logo-icon">🚗</span>
+  <span class="logo-text">AutoRent System</span>
+  <span class="logo-badge">v1.0</span>
+</div>
+      <div class="header-title">
+        <h1>🚗 All vehicles - {{currentUser?.isLoggedIn ? 'Manage Mode' : 'Read-Only Mode'}}</h1>
+        <div class="header-subtitle">
+          <span class="status-indicator" 
+                [class.connected]="backendConnected" 
+                [class.disconnected]="!backendConnected"></span>
+          {{backendMessage}}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Connection Test Button -->
+    <div class="header-actions">
+      <button (click)="testBackendConnection()" class="test-btn" [disabled]="loading">
+        {{loading ? '🔄 Testing...' : '🔌 Test Connection'}}
+      </button>
+    </div>
+  </header>
+
+  <!-- User Authentication Section -->
+  <div class="auth-section">
+    <div class="user-info" *ngIf="currentUser?.isLoggedIn">
+      <span class="user-welcome">👤 {{currentUser?.isLoggedIn ? 'Logged in as ' + currentUser?.name : 'Guest User'}}</span>
+      <button (click)="logout()" class="logout-btn">Logout</button>
+      <button (click)="addNewCar()" class="add-btn">➕ Add New Car</button>
+    </div>
+    <div class="login-prompt" *ngIf="!currentUser?.isLoggedIn">
+      <button (click)="showLogin()" class="login-btn">🔐 Login to Manage Cars</button>
+    </div>
+  </div>
+
+  <!-- Login Modal -->
+  <dialog #loginModal class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Login</h2>
+        <button (click)="hideLogin()" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="performLogin()" #loginFormTemplate="ngForm">
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" [(ngModel)]="loginForm.email" name="email" 
+                   required class="form-input" placeholder="admin@example.com">
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" [(ngModel)]="loginForm.password" 
+                   name="password" required class="form-input" placeholder="••••••••">
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="submit-btn" [disabled]="loading">
+              {{loading ? 'Logging in...' : 'Login'}}
+            </button>
+            <button type="button" (click)="hideLogin()" class="cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-container">
+      <input type="text" [(ngModel)]="searchQuery" (input)="searchCars()" 
+             placeholder="🔍 Search by model, type, or description..." 
+             class="search-input">
+      <button (click)="clearSearch()" class="clear-search-btn" *ngIf="searchQuery">
+        Clear
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics Section -->
+  <div class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Total Cars</span>
+        <span class="stat-value">{{totalCars}}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Available</span>
+        <span class="stat-value available">{{availableCarsCount}}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Rented</span>
+        <span class="stat-value rented">{{rentedCarsCount}}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Avg. Rate</span>
+        <span class="stat-value">{{averageDailyRate | currency}}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Mode</span>
+        <span class="stat-value mode" [class.edit-mode]="currentUser?.isLoggedIn">
+          {{currentUser?.isLoggedIn ? 'Edit Mode' : 'View Mode'}}
+        </span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Users</span>
+        <span class="stat-value">{{users.length}}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Data Source</span>
+        <span class="stat-status">{{getDataSourceText()}}</span>
+      </div>
+    </div>
+    
+    <!-- Refresh Button -->
+    <div class="refresh-section">
+      <button (click)="loadDataFromDatabase()" class="refresh-btn" [disabled]="loading">
+        {{loading ? '🔄 Loading...' : '🔄 Refresh from Backend'}}
+      </button>
+    </div>
+  </div>
+
+  <!-- Edit Car Modal -->
+  <dialog #carModal class="modal large-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>{{editingCar ? 'Edit Car' : 'Add New Car'}}</h2>
+        <button (click)="closeModal()" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="saveCar()" #carForm="ngForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="model">Model *</label>
+              <input type="text" id="model" [(ngModel)]="editForm.model" name="model" 
+                     required class="form-input" placeholder="Toyota Camry">
+            </div>
+            
+            <div class="form-group">
+              <label for="type">Type *</label>
+              <select id="type" [(ngModel)]="editForm.type" name="type" required class="form-select">
+                <option value="">Select type</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Truck">Truck</option>
+                <option value="Sports Car">Sports Car</option>
+                <option value="Van">Van</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="year">Year *</label>
+              <input type="number" id="year" [(ngModel)]="editForm.year" name="year" 
+                     required class="form-input" min="2000" [max]="currentYear + 1" 
+                     placeholder="2024">
+            </div>
+            
+            <div class="form-group">
+              <label for="dailyRate">Daily Rate ($) *</label>
+              <input type="number" id="dailyRate" [(ngModel)]="editForm.dailyRate" 
+                     name="dailyRate" required class="form-input" min="0" step="1" 
+                     placeholder="45">
+            </div>
+            
+            <div class="form-group">
+              <label for="status">Status *</label>
+              <select id="status" [(ngModel)]="editForm.status" name="status" required class="form-select">
+                <option *ngFor="let status of statusOptions" [value]="status">{{status}}</option>
+              </select>
+            </div>
+            
+            <div class="form-group full-width">
+              <label for="description">Description</label>
+              <textarea id="description" [(ngModel)]="editForm.description" 
+                        name="description" class="form-textarea" 
+                        placeholder="Car description..." rows="3"></textarea>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="save-btn" [disabled]="loading || !carForm.form.valid">
+              {{loading ? 'Saving...' : (editingCar ? 'Update Car' : 'Add Car')}}
+            </button>
+            <button type="button" (click)="closeModal()" class="cancel-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Loading data...</p>
+  </div>
+
+        <!-- Cars Table -->
+      <div *ngIf="!loading && filteredCars.length > 0" class="table-responsive">
+        <table class="cars-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Type</th>
+              <th>Year</th>
+              <th>Daily Rate</th>
+              <th>Status</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let car of filteredCars; trackBy: trackByCarId">
+              <td><strong>{{car.model}}</strong></td>
+              <td><span class="type-badge">{{car.type}}</span></td>
+              <td>{{car.year}}</td>
+              <td class="price">{{formatPrice(car.dailyRate)}}</td>
+              <td>
+                <span class="status-badge" [style.background-color]="getStatusColor(car.status)">
+                  {{car.status}}
+                </span>
+              </td>
+              <td>{{car.description || 'No description'}}</td>
+              <td>
+                <button (click)="editCar(car)" class="btn btn-edit" *ngIf="canEdit()">
+                  Edit
+                </button>
+                <button (click)="deleteCar(car._id)" class="btn btn-delete" *ngIf="canEdit()">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- No Data Message -->
+      <div *ngIf="!loading && filteredCars.length === 0" class="no-data">
+        <p>No cars found. {{searchQuery ? 'Try a different search.' : ''}}</p>
+        <button (click)="loadDataFromDatabase()" class="btn btn-refresh">
+          Refresh Data
+        </button>
+      </div>
+      
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading cars...</p>
+      </div>
+    <div *ngIf="filteredCars.length === 0" class="empty-state">
+      <p>No cars found. {{searchQuery ? 'Try a different search.' : 'Add your first car!'}}</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>Car Rental System © 2024 | Backend Status: 
+      <span [class]="backendConnected ? 'status-online' : 'status-offline'">
+        {{backendConnected ? 'Online' : 'Offline'}}
+      </span>
+    </p>
+  </footer>
+</div>
+
+
+
+
+
+

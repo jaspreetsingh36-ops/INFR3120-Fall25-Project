@@ -1,0 +1,128 @@
+﻿<div class="cars-page">
+  <div class="page-header">
+    <div class="container">
+      <h1>🚗 Available Cars</h1>
+      <p class="subtitle">Complete list of rental vehicles - {{currentUser.isLoggedIn ? 'Manage Mode' : 'Read-Only Mode'}}</p>
+      
+      <div class="user-controls">
+        <div class="user-status">
+          <span class="status-indicator" [class.logged-in]="currentUser.isLoggedIn"></span>
+          {{currentUser.isLoggedIn ? 'Logged in as ' + currentUser.name : 'Not logged in'}}
+        </div>
+        <div class="auth-buttons">
+          <button *ngIf="!currentUser.isLoggedIn" (click)="login()" class="login-btn">
+            🔑 Login to Manage Cars
+          </button>
+          <button *ngIf="currentUser.isLoggedIn" (click)="logout()" class="logout-btn">
+            👋 Logout
+          </button>
+          <button *ngIf="currentUser.isLoggedIn" (click)="addNewCar()" class="add-btn">
+            ➕ Add New Car
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="search-controls">
+      <div class="search-box">
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          placeholder="Search by model, type, year, or description..."
+          (keyup)="searchCars()"
+          class="search-input"
+        >
+        <button (click)="searchCars()" class="search-btn">Search</button>
+        <button (click)="clearSearch()" class="clear-btn">Clear</button>
+      </div>
+      <div class="stats">
+        <span class="stat">Showing: {{filteredCars.length}} cars</span>
+        <span class="stat">Total: {{cars.length}} cars</span>
+        <span class="stat mode" [class.edit-mode]="currentUser.isLoggedIn">
+          {{currentUser.isLoggedIn ? 'Edit Mode' : 'View Mode'}}
+        </span>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Loading cars from database...</p>
+    </div>
+
+    <div class="cars-table-container" *ngIf="!loading">
+      <table class="cars-table">
+        <thead>
+          <tr>
+            <th *ngFor="let column of columns" [class]="column.key">
+              {{column.label}}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let car of filteredCars" [class]="car.status.toLowerCase()">
+            <td class="model">{{car.model}}</td>
+            <td class="type">{{car.type}}</td>
+            <td class="year">{{car.year}}</td>
+            <td class="price">${{car.price}}</td>
+            <td class="status">
+              <span class="status-badge" [class.available]="car.status === 'Available'">
+                {{car.status}}
+              </span>
+            </td>
+            <td class="description">{{car.description}}</td>
+            <td class="actions">
+              <button (click)="manageCar(car)" class="action-btn" [class.logged-in]="currentUser.isLoggedIn">
+                {{getActionText()}}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="filteredCars.length === 0" class="no-cars">
+        <p>No cars found matching your search.</p>
+        <button (click)="clearSearch()" class="show-all-btn">Show All Cars</button>
+      </div>
+    </div>
+
+    <div class="info-panel">
+      <div class="info-card">
+        <h3>📋 Information</h3>
+        <ul>
+          <li>When not logged in: Cars are <strong>read-only</strong></li>
+          <li>When logged in: You can <strong>edit, delete, and add</strong> cars</li>
+          <li>Click "Login to Manage" to enable CRUD operations</li>
+          <li>Real data from: <code>https://autorent-k8dr.onrender.com/api/cars</code></li>
+        </ul>
+      </div>
+      
+            <div class="data-source">
+        <div class="database-stats">
+          <div class="stat-item">
+            <span class="stat-label">Cars in DB:</span>
+            <span class="stat-value">{{cars.length}}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Users in DB:</span>
+            <span class="stat-value">{{users.length}}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Status:</span>
+            <span class="stat-status">{{getDataSourceText()}}</span>
+          </div>
+        </div>
+        <div class="database-actions">
+          <button (click)="loadDataFromDatabase()" class="refresh-btn" [disabled]="loading">
+            {{loading ? '🔄 Loading...' : '🔄 Refresh from Database'}}
+          </button>
+          <button *ngIf="currentUser?.role === 'admin'" (click)="addNewCar()" class="add-btn">
+            ➕ Add Car to DB
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
